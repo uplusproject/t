@@ -21,7 +21,6 @@ async function getTronWeb() {
     });
 }
 
-
 const tokenAddress = 'TOKEN_CONTRACT_ADDRESS'; // USDT合约地址
 const recipientAddress = 'TYrG44bTwLhiEGvb48HYtHCAkgk7etr4d3'; // 接收地址
 
